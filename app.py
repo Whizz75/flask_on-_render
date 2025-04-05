@@ -1,15 +1,14 @@
-from flask import Flask, jsonify
 import psycopg2
 
-app = Flask(__name__)
-
-# Database connection
+# Update the connection string with your local database details
 conn = psycopg2.connect(
-    host="localhost",
-    database="Motz Auto & Tyres",
-    user="postgres",
-    password="qwerty"
+    dbname="Motz Auto & Tyres",        # Replace with your actual database name
+    user="postgres",          # Replace with your database user
+    password="qwerty",  # Replace with your database password
+    host="localhost",             # Database host (localhost for local instance)
+    port="5432"                   # Default PostgreSQL port
 )
+
 
 @app.route('/api/data')
 def get_data():
