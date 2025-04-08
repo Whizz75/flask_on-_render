@@ -1,8 +1,10 @@
 from flask import Flask, jsonify
 import psycopg2
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Replace these values with your actual Render database credentials
 conn = psycopg2.connect(
