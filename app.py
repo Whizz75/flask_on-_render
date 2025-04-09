@@ -32,6 +32,10 @@ def get_data():
         cur.close()
         conn.close()
 
+        # 🔥 Print what we got from DB
+        print("✅ First Row:", rows[0])
+        print("✅ Number of columns:", len(rows[0]))
+
         result = [
             {
                 "productid": r[0],
@@ -44,7 +48,7 @@ def get_data():
         return jsonify(result)
 
     except Exception as e:
-        print("🔥 ERROR:", e)  # 🪵 Log the error
+        print("🔥 ERROR:", e)
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
