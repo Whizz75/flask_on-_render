@@ -23,7 +23,7 @@ def get_data():
     cur.close()
 
     # Assuming columns: id, name, price
-    result = [{"productid": r[0], "productname": r[1], "brandname": r[2], "sellingprice": r[3]} for r in rows]
+    result = [{"productid": r[0], "productname": r[1], "brandname": r[2], "sellingprice": r[3], "quantity": r[4]} for r in rows]
     return jsonify(result)
 
 if __name__ == '__main__':
