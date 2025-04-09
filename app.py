@@ -38,11 +38,10 @@ def get_data():
 
         result = [
             {
-                "productid": r[0],
-                "productname": r[1],
-                "brandname": r[2],
-                "sellingprice": float(r[3]),
-                "quantity": int(r[4])
+                "productname": r[0],
+                "brandname": r[1],
+                "sellingprice": float(r[2]),
+                "quantity": int(r[3])
             } for r in rows
         ]
         return jsonify(result)
