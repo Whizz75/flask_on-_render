@@ -17,14 +17,35 @@ conn = psycopg2.connect(
 
 @app.route('/api/data')
 def get_data():
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM product;")
-    rows = cur.fetchall()
-    cur.close()
+    try:
+        conn = psycopg2.connect(
+            dbname="whizz75",
+            user="whizz75_user",
+            password="0z1ICrtCiBCKxJzOL2QKrC7xsBfuik5u",
+            host="dpg-cvqi5g6uk2gs73d6ikn0-a",
+            port="5432",
+            sslmode="require"
+        )
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM product;")
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
 
-    # Assuming columns: id, name, price
-    result = [{"productid": r[0], "productname": r[1], "brandname": r[2], "sellingprice": r[3], "quantity": r[4]} for r in rows]
-    return jsonify(result)
+        result = [
+            {
+                "productid": r[0],
+                "productname": r[1],
+                "brandname": r[2],
+                "sellingprice": float(r[3]),
+                "quantity": int(r[4])
+            } for r in rows
+        ]
+        return jsonify(result)
+
+    except Exception as e:
+        print("🔥 ERROR:", e)  # 🪵 Log the error
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
