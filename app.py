@@ -17,22 +17,25 @@ conn = psycopg2.connect(
 
 @app.route('/api/data')
 def get_data():
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM product;")
-        rows = cur.fetchall()
-        cur.close()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM product;")
+    rows = cur.fetchall()
+    cur.close()
 
-        print("📦 All rows from DB:")
-        for r in rows:
-            print(r)  # This will show what each tuple contains
+    print("📦 All rows from DB:", rows)  # Optional debug
 
-        return jsonify({"message": "Check server logs for printed rows"})
-
-    except Exception as e:
-        print("❌ Error:", e)
-        return jsonify({"error": str(e)}), 500
-
+    # Columns: productid, productname, brandname, sellingprice
+    result = [
+        {
+            "productid": r[0],
+            "productname": r[1],
+            "brandname": r[2],
+            "sellingprice": float(r[3]),  # Convert Decimal to float
+            "quantity": 10  # 🔧 Temporary placeholder quantity (optional)
+        }
+        for r in rows
+    ]
+    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True)
