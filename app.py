@@ -22,8 +22,6 @@ def get_data():
     rows = cur.fetchall()
     cur.close()
 
-    print("📦 All rows from DB:", rows)  # Optional debug
-
     # Columns: productid, productname, brandname, sellingprice
     result = [
         {
@@ -31,7 +29,8 @@ def get_data():
             "productname": r[1],
             "brandname": r[2],
             "sellingprice": float(r[3]),  # Convert Decimal to float
-            "quantity": 10  # 🔧 Temporary placeholder quantity (optional)
+            "quantity": r[4]
+
         }
         for r in rows
     ]
