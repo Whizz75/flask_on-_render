@@ -32,18 +32,19 @@ def get_data():
         cur.close()
         conn.close()
 
-        # 🔥 Print what we got from DB
-        print("✅ First Row:", rows[0])
-        print("✅ Number of columns:", len(rows[0]))
+        for r in rows:
+            print("ROW:", r)  # ✅ Show us what’s in each row
 
-        result = [
-            {
-                "productname": r[0],
-                "brandname": r[1],
-                "sellingprice": float(r[2]),
-                "quantity": int(r[3])
-            } for r in rows
-        ]
+        result = []
+        for r in rows:
+            result.append({
+                "productid": r[0],
+                "productname": r[1],
+                "brandname": r[2],
+                "sellingprice": float(r[3]),  # Make sure r[3] is a number
+                "quantity": int(r[4])         # Make sure r[4] is an int
+            })
+
         return jsonify(result)
 
     except Exception as e:
