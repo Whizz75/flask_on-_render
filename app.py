@@ -8,10 +8,10 @@ CORS(app)
 # Connect to your DB
 try:
     conn = psycopg2.connect(
-        dbname="whizz75",
-        user="whizz75_user",
-        password="0z1ICrtCiBCKxJzOL2QKrC7xsBfuik5u",
-        host="dpg-cvqi5g6uk2gs73d6ikn0-a",
+        dbname="whizz75_nzgk",
+        user="whizz75_nzgk_user",
+        password="0ycwbcpqtmMOd4Qw3p3px0YANWZy5GM1",
+        host="dpg-cvrru42li9vc739n4140-a",
         port="5432",
         sslmode="require"
     )
