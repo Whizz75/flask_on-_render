@@ -25,10 +25,11 @@ def get_data():
     # Columns: productid, productname, brandname, sellingprice
     result = [
         {
-            "productname": r[0],
-            "brandname": r[1],
-            "sellingprice": float(r[2]),
-            "quantity": r[3]  # Convert Decimal to float
+            "productid": r[0],
+            "productname": r[1],
+            "brandname": r[2],
+            "sellingprice": float(r[3])
+            #"quantity": r[4]  # Convert Decimal to float
 
         }
         for r in rows
