@@ -28,8 +28,8 @@ def get_data():
             "productid": r[0],
             "productname": r[1],
             "brandname": r[2],
-            "sellingprice": float(r[3])
-            #"quantity": r[4]  # Convert Decimal to float
+            "sellingprice": float(r[3]),
+            "quantity": r[4]
 
         }
         for r in rows
