@@ -17,7 +17,7 @@ try:
 except Exception as e:
     print("Database connection failed:", e)
 
-@app.route('/')
+@app.route('/home')
 def logoAccess():
     return render_template('index.html')
     
