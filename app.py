@@ -18,7 +18,7 @@ except Exception as e:
     print("Database connection failed:", e)
 
 @app.route('/home')
-def logoAccess():
+def homePage():
     return render_template('index.html')
     
 @app.route('/api/records')
