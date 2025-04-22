@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f9f9f9;
+        }
+
+        h1 {
+            text-align: center;
+            color: #257db3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+
+        th {
+            background-color: #257db3;
+            color: white;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+        }
+
+        .total-box {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 15px;
+            background-color: #257db3;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1a5d87;
+        }
+
+        #selected-products {
+            margin-top: 15px;
+            list-style-type: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Sales Page</h1>
+
+    <table id="product-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Brand</th>
+                <th>Price (M)</th>
+                <th>Quantity</th>
+                <th>Buy</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Products will load here -->
+        </tbody>
+    </table>
+
+    <div class="total-box">
+        <p><strong>Total:</strong> M<span id="total">0.00</span></p>
+
+        <label for="payment">Payment Amount (M): </label>
+        <input type="number" id="payment" placeholder="Enter payment" />
+
+        <p><strong>Change:</strong> M<span id="change">0.00</span></p>
+
+        <button onclick="goToReceiptPage()">Go to Receipt</button>
+
+        <ul id="selected-products">
+            <!-- Selected products will be listed here -->
+        </ul>
+    </div>
+
+<!-- Replace the entire <script> section in your HTML with this updated one -->
+
+<script>
+    let products = [];
+
+    fetch('https://flask-on-render-17g8.onrender.com/api/data')
+        .then(response => response.json())
+        .then(data => {
+            products = data;
+            const tableBody = document.querySelector('#product-table tbody');
+
+            data.forEach((product, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.productname}</td>
+                    <td>${product.brandname}</td>
+                    <td>${product.sellingprice}</td>
+                    <td>${product.quantity}</td>
+                    <td>
+                        <input 
+                            type="number" 
+                            value="0" 
+                            min="0" 
+                            max="${product.quantity}" 
+                            data-index="${index}" 
+                            data-price="${product.sellingprice}" 
+                            onchange="updateTotal()" 
+                            ${product.quantity === 0 ? 'disabled' : ''} 
+                        />
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching products:', error);
+            const tableBody = document.querySelector('#product-table tbody');
+            tableBody.innerHTML = `<tr><td colspan="5">Failed to load products.</td></tr>`;
+        });
+    function updateTotal() {
+    let total = 0;
+    const selectedList = document.getElementById('selected-products');
+    selectedList.innerHTML = '';
+
+    document.querySelectorAll('input[type="number"][data-price]').forEach(input => {
+        let quantity = parseInt(input.value) || 0;
+        const index = parseInt(input.getAttribute('data-index'));
+        const price = parseFloat(input.getAttribute('data-price'));
+        const maxQuantity = products[index].quantity;
+
+        if (quantity > maxQuantity) {
+            alert(`You cannot buy more than ${maxQuantity} units of ${products[index].productname}.`);
+            input.value = maxQuantity;
+            quantity = maxQuantity;
+        }
+
+        if (quantity > 0) {
+            const li = document.createElement('li');
+            li.textContent = `${products[index].productname} (${products[index].brandname}) - Quantity: ${quantity}`;
+            selectedList.appendChild(li);
+            total += quantity * price;
+        }
+    });
+
+    document.getElementById('total').textContent = total.toFixed(2);
+    updateChangeDisplay();
+}
+
+    function updateChangeDisplay() {
+        const total = parseFloat(document.getElementById('total').textContent);
+        const payment = parseFloat(document.getElementById('payment').value) || 0;
+        const change = payment - total;
+
+        document.getElementById('change').textContent = change >= 0 ? change.toFixed(2) : 'Insufficient payment';
+    }
+
+    document.getElementById('payment').addEventListener('input', updateChangeDisplay);
+
+    function goToReceiptPage() {
+        const total = parseFloat(document.getElementById('total').textContent);
+        const payment = parseFloat(document.getElementById('payment').value) || 0;
+
+        if (payment < total) {
+            alert('Payment is insufficient. Please enter a valid amount.');
+            return;
+        }
+
+        const selectedProducts = [];
+        document.querySelectorAll('input[type="number"][data-price]').forEach(input => {
+            const quantity = parseInt(input.value) || 0;
+            if (quantity > 0) {
+                const index = parseInt(input.getAttribute('data-index'));
+                selectedProducts.push({
+                    productname: products[index].productname,
+                    brandname: products[index].brandname,
+                    quantity: quantity,
+                    sellingprice: products[index].sellingprice
+                });
+            }
+        });
+
+        localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
+        localStorage.setItem('total', total);
+        localStorage.setItem('payment', payment);
+
+        window.location.href = 'customer-info.html';
+        
+    }
+</script>
+
+</body>
+</html>

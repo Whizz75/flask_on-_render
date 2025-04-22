@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Motz Auto & Tyres(PTY) Ltd</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #257db3;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+        }
+
+        .nav-button {
+            background-color: #257db3;
+            color: white;
+            padding: 15px 30px;
+            margin: 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background-color: #1a5d8f;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Motz Auto & Tyres(PTY) Ltd</h1>
+    </header>
+
+    <div class="nav-container">
+        <a href="sales.html" class="nav-button">Sales</a>
+        <a href="jh" class="nav-button">Financial Records</a>
+    </div>
+</body>
+</html>

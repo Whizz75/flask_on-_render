@@ -1,0 +1,35 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Motz Auto & Tyres(PTY) Ltd{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+    {% block head %}{% endblock %}
+    <style>
+        /* Common styles go here */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #257db3;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Motz Auto & Tyres(PTY) Ltd</h1>
+    </header>
+
+    {% block content %}{% endblock %}
+</body>
+</html>
