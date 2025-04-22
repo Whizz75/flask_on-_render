@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 import psycopg2
 
@@ -17,6 +17,10 @@ try:
 except Exception as e:
     print("Database connection failed:", e)
 
+@app.route('/')
+def logoAccess():
+    return render_template('index.html')
+    
 @app.route('/api/records')
 def get_records():
     try:
