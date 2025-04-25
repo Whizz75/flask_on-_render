@@ -47,99 +47,45 @@ def get_data():
         print("Error in /api/data:", e)
         return jsonify({"error": str(e)}), 500
         
-@app.route('/records', methods=['GET'])
-def get_records():
+@app.route('/records/by-year')
+def get_records_by_year():
     try:
-        year = request.args.get('year', type=int)
-
-        # SQL Query to fetch the data by year
-        query = """
-            SELECT 
-                fr."Year", 
-                -- Income Statement Data
-                is.revenue, 
-                is.cost_of_goods_sold, 
-                is.gross_profit, 
-                is.total_expenses, 
-                is.earnings_before_tax, 
-                is.taxes, 
-                is.net_profit,
-
-                -- Balance Sheet Data
-                bs.cash, 
-                bs.debt, 
-                bs.equity_capital, 
-                bs.retained_earnings, 
-                bs.total_shareholders_equity,
-
-                -- Cash Flow Statement Data
-                cf.net_earnings, 
-                cf.cash_from_operations, 
-                cf.investment_in_property_and_equipment, 
-                cf.cash_from_investing, 
-                cf.net_cash_change, 
-                cf.opening_cash_balance, 
-                cf.closing_cash_balance
-
-            FROM 
-                financial_records fr
-            JOIN 
-                incomeStatement is ON fr."Year" = is."Year"
-            JOIN 
-                balancesheet bs ON fr."Year" = bs."Year"
-            JOIN 
-                cashFlowStatement cf ON fr."Year" = cf."Year"
-            WHERE fr."Year" = %s
-            ORDER BY fr."Year" ASC;
-        """
-
-        # Execute the query, if a year is provided
         cur = conn.cursor()
-        if year:
-            cur.execute(query, (year,))
-        else:
-            # If no year is provided, get all records
-            cur.execute(query)
-        
+        cur.execute("SELECT * FROM financialRecords;")
         rows = cur.fetchall()
         cur.close()
 
-        # Prepare result in a structured format
-        result = []
-        for r in rows:
-            result.append({
-                "Year": r[0],
-                "IncomeStatement": {
-                    "Revenue": r[1],
-                    "CostOfGoodsSold": r[2],
-                    "GrossProfit": r[3],
-                    "TotalExpenses": r[4],
-                    "EarningsBeforeTax": r[5],
-                    "Taxes": r[6],
-                    "NetProfit": r[7]
-                },
-                "BalanceSheet": {
-                    "Cash": r[8],
-                    "Debt": r[9],
-                    "EquityCapital": r[10],
-                    "RetainedEarnings": r[11],
-                    "TotalShareholdersEquity": r[12]
-                },
-                "CashFlowStatement": {
-                    "NetEarnings": r[13],
-                    "CashFromOperations": r[14],
-                    "InvestmentInPropertyAndEquipment": r[15],
-                    "CashFromInvesting": r[16],
-                    "NetCashChange": r[17],
-                    "OpeningCashBalance": r[18],
-                    "ClosingCashBalance": r[19]
-                }
-            })
+        columns = [desc[0] for desc in cur.description]
 
-        return jsonify(result)
+        # Convert data into a structured dict by year
+        records_by_year = {}
+
+        for row in rows:
+            record = dict(zip(columns, row))
+            year = record.get("Year")
+
+            if year not in records_by_year:
+                records_by_year[year] = {
+                    "IncomeStatement": {},
+                    "BalanceSheet": {},
+                    "CashFlowStatement": {}
+                }
+
+            # Group fields by statement type
+            for key, value in record.items():
+                if key in ["Year", "id"]:
+                    continue
+                if key in ["Revenue", "CostOfGoodsSold", "GrossProfit", "TotalExpenses", "EarningsBeforeTax", "Taxes", "NetProfit"]:
+                    records_by_year[year]["IncomeStatement"][key] = value
+                elif key in ["Cash", "Debt", "EquityCapital", "RetainedEarnings", "TotalShareholdersEquity"]:
+                    records_by_year[year]["BalanceSheet"][key] = value
+                elif key in ["NetEarnings", "CashFromOperations", "InvestmentInPropertyAndEquipment", "CashFromInvesting", "NetCashChange", "OpeningCashBalance", "ClosingCashBalance"]:
+                    records_by_year[year]["CashFlowStatement"][key] = value
+
+        return jsonify(records_by_year)
 
     except Exception as e:
-        print("Error in /records:", e)
+        print("Error in /records/by-year:", e)
         return jsonify({"error": str(e)}), 500
 
 
