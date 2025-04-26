@@ -26,7 +26,7 @@ def get_sales():
                 s.salesid,
                 CONCAT(c.customerfirstname, ' ', c.customerlastname) AS customername,
                 CONCAT(e.employeefirstname, ' ', e.employeelastname) AS employee,
-                CONCAT(p.productname, ',', p.brandname) AS product,
+                CONCAT(p.productname, ', ', p.brandname) AS product,
                 s.sales_date
             FROM sales s
             JOIN customer c ON s.customerid = c.customerid
