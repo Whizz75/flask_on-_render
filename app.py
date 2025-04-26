@@ -87,7 +87,7 @@ def get_records_by_year():
         cur = conn.cursor()
         
         # ROLLBACK any failed transaction before starting a new one
-        conn.rollback()
+        #conn.rollback()
 
         cur.execute("""
             SELECT 
