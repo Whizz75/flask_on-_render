@@ -83,7 +83,7 @@ def get_data():
 def get_records_by_year():
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM financialRecords;")
+        cur.execute("SELECT * FROM financial_records;")
         rows = cur.fetchall()
         cur.close()
 
