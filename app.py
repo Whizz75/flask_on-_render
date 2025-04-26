@@ -85,9 +85,6 @@ def get_data():
 def get_records_by_year():
     try:
         cur = conn.cursor()
-        
-        # ROLLBACK any failed transaction before starting a new one
-        #conn.rollback()
 
         cur.execute("""
             SELECT 
@@ -112,40 +109,39 @@ def get_records_by_year():
             ORDER BY fr."Year" ASC;
         """)
 
-
         rows = cur.fetchall()
         cur.close()
 
-        records_by_year = {}
+        # Return a flat list instead of nested
+        records_list = []
         for row in rows:
-            year = row[0]  # First column is "Year"
-            if year not in records_by_year:
-                records_by_year[year] = {
-                    "IncomeStatement": {},
-                    "BalanceSheet": {},
-                    "CashFlowStatement": {}
-                }
+            records_list.append({
+                "Year": row[0],
+                "Revenue": row[1],
+                "CostOfGoodsSold": row[2],
+                "GrossProfit": row[3],
+                "TotalExpenses": row[4],
+                "EarningsBeforeTax": row[5],
+                "Taxes": row[6],
+                "NetProfit": row[7],
+                "Cash": row[8],
+                "Debt": row[9],
+                "EquityCapital": row[10],
+                "RetainedEarnings": row[11],
+                "TotalShareholdersEquity": row[12],
+                "NetEarnings": row[13],
+                "CashFromOperations": row[14],
+                "InvestmentInPropertyAndEquipment": row[15],
+                "CashFromInvesting": row[16],
+                "NetCashChange": row[17],
+                "OpeningCashBalance": row[18],
+                "ClosingCashBalance": row[19]
+            })
 
-            records_by_year[year]["IncomeStatement"] = {
-                "Revenue": row[1], "CostOfGoodsSold": row[2], "GrossProfit": row[3],
-                "TotalExpenses": row[4], "EarningsBeforeTax": row[5], 
-                "Taxes": row[6], "NetProfit": row[7]
-            }
-            records_by_year[year]["BalanceSheet"] = {
-                "Cash": row[8], "Debt": row[9], "EquityCapital": row[10],
-                "RetainedEarnings": row[11], "TotalShareholdersEquity": row[12]
-            }
-            records_by_year[year]["CashFlowStatement"] = {
-                "NetEarnings": row[13], "CashFromOperations": row[14],
-                "InvestmentInPropertyAndEquipment": row[15], 
-                "CashFromInvesting": row[16], "NetCashChange": row[17], 
-                "OpeningCashBalance": row[18], "ClosingCashBalance": row[19]
-            }
-
-        return jsonify(records_by_year)
+        return jsonify(records_list)
 
     except Exception as e:
-        conn.rollback()  # Ensure any failed transaction is rolled back
+        conn.rollback()
         print("Error in /records/by-year:", e)
         return jsonify({"error": str(e)}), 500
 
