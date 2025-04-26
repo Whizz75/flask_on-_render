@@ -18,7 +18,7 @@ except Exception as e:
     print("Database connection failed:", e)
 
 @app.route('/sales')
-def get_sales_data():
+def get_sales():
     try:
         cur = conn.cursor()
         cur.execute("""
@@ -27,28 +27,30 @@ def get_sales_data():
                 CONCAT(c.customerfirstname, ' ', c.customerlastname) AS customer_name,
                 CONCAT(e.employeefirstname, ' ', e.employeelastname) AS employee_name,
                 p.productname,
-                s.sales_date
+                s.saledate
             FROM sales s
-            LEFT JOIN customer c ON s.customerid = c.customerid
-            LEFT JOIN employee e ON s.employeeid = e.employeeid
-            LEFT JOIN product p ON s.productid = p.productid
-            ORDER BY s.sales_date DESC;
+            JOIN customer c ON s.customerid = c.customerid
+            JOIN employee e ON s.employeeid = e.employeeid
+            JOIN product p ON s.productid = p.productid;
         """)
-
         rows = cur.fetchall()
-        columns = [desc[0] for desc in cur.description]
         cur.close()
 
-        data = []
+        sales_data = []
         for row in rows:
-            data.append(dict(zip(columns, row)))
+            sales_data.append({
+                "salesid": row[0],
+                "customer_name": row[1],
+                "employee_name": row[2],
+                "productname": row[3],
+                "saledate": row[4].strftime("%Y-%m-%d")  # format date nicely
+            })
 
-        return jsonify(data)
-
+        return jsonify(sales_data)
     except Exception as e:
         print("Error in /sales:", e)
         return jsonify({"error": str(e)}), 500
-
+        
 @app.route('/products')
 def get_data():
     try:
