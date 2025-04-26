@@ -17,6 +17,38 @@ try:
 except Exception as e:
     print("Database connection failed:", e)
 
+@app.route('/sales')
+def get_sales_data():
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT 
+                s.salesid,
+                c.customername,
+                e.employeename,
+                p.productname,
+                s.dateofpurchase,
+                s.totalamount
+            FROM sales s
+            JOIN customer c ON s.customerid = c.customerid
+            JOIN employee e ON s.employeeid = e.employeeid
+            JOIN product p ON s.productid = p.productid
+            ORDER BY s.dateofpurchase DESC;
+        """)
+        rows = cur.fetchall()
+        columns = [desc[0] for desc in cur.description]
+        cur.close()
+
+        data = []
+        for row in rows:
+            data.append(dict(zip(columns, row)))
+
+        return jsonify(data)
+
+    except Exception as e:
+        print("Error in /sales:", e)
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/products')
 def get_data():
     try:
