@@ -24,17 +24,17 @@ def get_sales_data():
         cur.execute("""
             SELECT 
                 s.salesid,
-                c.(customerfirstname, customerlastname) as customername,
-                e.(employeefirstname, employeelastname) as employee,
-                p.(productname, brandname) as product,
-                s.sales_date,
-                s.revenue
+                CONCAT(c.customerfirstname, ' ', c.customerlastname) AS customer_name,
+                CONCAT(e.employeefirstname, ' ', e.employeelastname) AS employee_name,
+                p.productname,
+                s.saledate
             FROM sales s
-            JOIN customer c ON s.customerid = c.customerid
-            JOIN employee e ON s.employeeid = e.employeeid
-            JOIN product p ON s.productid = p.productid
-            ORDER BY s.sales_date DESC;
+            LEFT JOIN customer c ON s.customerid = c.customerid
+            LEFT JOIN employee e ON s.employeeid = e.employeeid
+            LEFT JOIN product p ON s.productid = p.productid
+            ORDER BY s.saledate DESC;
         """)
+
         rows = cur.fetchall()
         columns = [desc[0] for desc in cur.description]
         cur.close()
