@@ -27,12 +27,12 @@ def get_sales_data():
                 CONCAT(c.customerfirstname, ' ', c.customerlastname) AS customer_name,
                 CONCAT(e.employeefirstname, ' ', e.employeelastname) AS employee_name,
                 p.productname,
-                s.saledate
+                s.sales_date
             FROM sales s
             LEFT JOIN customer c ON s.customerid = c.customerid
             LEFT JOIN employee e ON s.employeeid = e.employeeid
             LEFT JOIN product p ON s.productid = p.productid
-            ORDER BY s.saledate DESC;
+            ORDER BY s.sales_date DESC;
         """)
 
         rows = cur.fetchall()
