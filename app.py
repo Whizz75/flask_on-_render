@@ -83,19 +83,39 @@ def get_data():
 def get_records_by_year():
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM financial_records;")
+        
+        # ROLLBACK any failed transaction before starting a new one
+        conn.rollback()
+
+        cur.execute("""
+            SELECT 
+                fr."Year", 
+                -- Income Statement
+                is.revenue, is.cost_of_goods_sold, is.gross_profit, 
+                is.total_expenses, is.earnings_before_tax, is.taxes, is.net_profit,
+
+                -- Balance Sheet
+                bs.cash, bs.debt, bs.equity_capital, 
+                bs.retained_earnings, bs.total_shareholders_equity,
+
+                -- Cash Flow Statement
+                cf.net_earnings, cf.cash_from_operations, 
+                cf.investment_in_property_and_equipment, cf.cash_from_investing, 
+                cf.net_cash_change, cf.opening_cash_balance, cf.closing_cash_balance
+
+            FROM financial_records fr
+            JOIN incomeStatement is ON fr."Year" = is."Year"
+            JOIN balanceSheet bs ON fr."Year" = bs."Year"
+            JOIN cashFlowStatement cf ON fr."Year" = cf."Year"
+            ORDER BY fr."Year" ASC;
+        """)
+
         rows = cur.fetchall()
         cur.close()
 
-        columns = [desc[0] for desc in cur.description]
-
-        # Convert data into a structured dict by year
         records_by_year = {}
-
         for row in rows:
-            record = dict(zip(columns, row))
-            year = record.get("Year")
-
+            year = row[0]  # First column is "Year"
             if year not in records_by_year:
                 records_by_year[year] = {
                     "IncomeStatement": {},
@@ -103,20 +123,26 @@ def get_records_by_year():
                     "CashFlowStatement": {}
                 }
 
-            # Group fields by statement type
-            for key, value in record.items():
-                if key in ["Year", "id"]:
-                    continue
-                if key in ["Revenue", "CostOfGoodsSold", "GrossProfit", "TotalExpenses", "EarningsBeforeTax", "Taxes", "NetProfit"]:
-                    records_by_year[year]["IncomeStatement"][key] = value
-                elif key in ["Cash", "Debt", "EquityCapital", "RetainedEarnings", "TotalShareholdersEquity"]:
-                    records_by_year[year]["BalanceSheet"][key] = value
-                elif key in ["NetEarnings", "CashFromOperations", "InvestmentInPropertyAndEquipment", "CashFromInvesting", "NetCashChange", "OpeningCashBalance", "ClosingCashBalance"]:
-                    records_by_year[year]["CashFlowStatement"][key] = value
+            records_by_year[year]["IncomeStatement"] = {
+                "Revenue": row[1], "CostOfGoodsSold": row[2], "GrossProfit": row[3],
+                "TotalExpenses": row[4], "EarningsBeforeTax": row[5], 
+                "Taxes": row[6], "NetProfit": row[7]
+            }
+            records_by_year[year]["BalanceSheet"] = {
+                "Cash": row[8], "Debt": row[9], "EquityCapital": row[10],
+                "RetainedEarnings": row[11], "TotalShareholdersEquity": row[12]
+            }
+            records_by_year[year]["CashFlowStatement"] = {
+                "NetEarnings": row[13], "CashFromOperations": row[14],
+                "InvestmentInPropertyAndEquipment": row[15], 
+                "CashFromInvesting": row[16], "NetCashChange": row[17], 
+                "OpeningCashBalance": row[18], "ClosingCashBalance": row[19]
+            }
 
         return jsonify(records_by_year)
 
     except Exception as e:
+        conn.rollback()  # Ensure any failed transaction is rolled back
         print("Error in /records/by-year:", e)
         return jsonify({"error": str(e)}), 500
 
