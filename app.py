@@ -91,12 +91,12 @@ def get_records_by_year():
             SELECT 
                 fr."Year", 
                 -- Income Statement
-                is.revenue, is.cost_of_goods_sold, is.gross_profit, 
-                is.total_expenses, is.earnings_before_tax, is.taxes, is.net_profit,
+                inc.revenue, inc.cost_of_goods_sold, inc.gross_profit, 
+                inc.total_expenses, inc.earnings_before_tax, inc.taxes, inc.net_profit,
 
                 -- Balance Sheet
-                bs.cash, bs.debt, bs.equity_capital, 
-                bs.retained_earnings, bs.total_shareholders_equity,
+                bal.cash, bal.debt, bal.equity_capital, 
+                bal.retained_earnings, bal.total_shareholders_equity,
 
                 -- Cash Flow Statement
                 cf.net_earnings, cf.cash_from_operations, 
@@ -104,11 +104,12 @@ def get_records_by_year():
                 cf.net_cash_change, cf.opening_cash_balance, cf.closing_cash_balance
 
             FROM financial_records fr
-            JOIN incomeStatement is ON fr."Year" = is."Year"
-            JOIN balanceSheet bs ON fr."Year" = bs."Year"
+            JOIN incomeStatement inc ON fr."Year" = inc."Year"
+            JOIN balanceSheet bal ON fr."Year" = bal."Year"
             JOIN cashFlowStatement cf ON fr."Year" = cf."Year"
             ORDER BY fr."Year" ASC;
         """)
+
 
         rows = cur.fetchall()
         cur.close()
