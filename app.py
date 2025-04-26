@@ -7,10 +7,10 @@ CORS(app)
 
 try:
     conn = psycopg2.connect(
-        dbname="whizz75_nzgk",
-        user="whizz75_nzgk_user",
-        password="0ycwbcpqtmMOd4Qw3p3px0YANWZy5GM1",
-        host="dpg-cvrru42li9vc739n4140-a",
+        dbname="postgres_7oco",
+        user="postgres_7oco_user",
+        password="QzYY3Fws5ws2Id66PTESQvNiH7Vonc2z",
+        host="dpg-d0657qbuibrs73e83q0g-a",
         port="5432",
         sslmode="require"
     )
@@ -25,15 +25,15 @@ def get_sales_data():
             SELECT 
                 s.salesid,
                 c.customername,
-                e.employeename,
-                p.productname,
-                s.dateofpurchase,
-                s.totalamount
+                e.(employeefirstname, employeelastname) as employee,
+                p.(productname, brandname) as product,
+                s.sales_date,
+                s.revenue
             FROM sales s
             JOIN customer c ON s.customerid = c.customerid
             JOIN employee e ON s.employeeid = e.employeeid
             JOIN product p ON s.productid = p.productid
-            ORDER BY s.dateofpurchase DESC;
+            ORDER BY s.sales_date DESC;
         """)
         rows = cur.fetchall()
         columns = [desc[0] for desc in cur.description]
