@@ -24,10 +24,10 @@ def get_sales():
         cur.execute("""
             SELECT 
                 s.salesid,
-                CONCAT(c.customerfirstname, ' ', c.customerlastname) AS customer_name,
-                CONCAT(e.employeefirstname, ' ', e.employeelastname) AS employee_name,
-                p.productname,
-                s.saledate
+                CONCAT(c.customerfirstname, ' ', c.customerlastname) AS customername,
+                CONCAT(e.employeefirstname, ' ', e.employeelastname) AS employee,
+                CONCAT(p.productname, ' ', p.brandname) AS product,
+                s.sales_date
             FROM sales s
             JOIN customer c ON s.customerid = c.customerid
             JOIN employee e ON s.employeeid = e.employeeid
@@ -40,10 +40,10 @@ def get_sales():
         for row in rows:
             sales_data.append({
                 "salesid": row[0],
-                "customer_name": row[1],
-                "employee_name": row[2],
-                "productname": row[3],
-                "saledate": row[4].strftime("%Y-%m-%d")  # format date nicely
+                "customername": row[1],
+                "employee": row[2],
+                "product": row[3],
+                "sales_date": row[4].strftime("%Y-%m-%d")  # format date nicely
             })
 
         return jsonify(sales_data)
