@@ -24,7 +24,7 @@ def get_sales_data():
         cur.execute("""
             SELECT 
                 s.salesid,
-                c.customername,
+                c.(customerfirstname, customerlastname) as customername,
                 e.(employeefirstname, employeelastname) as employee,
                 p.(productname, brandname) as product,
                 s.sales_date,
