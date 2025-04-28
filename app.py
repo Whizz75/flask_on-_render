@@ -12,7 +12,7 @@ conn = psycopg2.connect(
 cur = conn.cursor()
 
 # Function to check 'Year' data across all tables
-def check_years():
+def check_years('/year'):
     tables = [
         'financial_records',
         'incomeStatement',
