@@ -87,26 +87,20 @@ def get_records_by_year():
         cur = conn.cursor()
 
         cur.execute("""
-            SELECT 
-                fr."Year", 
-                -- Income Statement
-                inc.revenue, inc.cost_of_goods_sold, inc.gross_profit, 
-                inc.total_expenses, inc.earnings_before_tax, inc.taxes, inc.net_profit,
-
-                -- Balance Sheet
-                bal.cash, bal.debt, bal.equity_capital, 
-                bal.retained_earnings, bal.total_shareholders_equity,
-
-                -- Cash Flow Statement
-                cf.net_earnings, cf.cash_from_operations, 
-                cf.investment_in_property_and_equipment, cf.cash_from_investing, 
-                cf.net_cash_change, cf.opening_cash_balance, cf.closing_cash_balance
-
-            FROM financial_records fr
-            JOIN incomeStatement inc ON fr."Year" = inc."Year"
-            JOIN balanceSheet bal ON fr."Year" = bal."Year"
-            JOIN cashFlowStatement cf ON fr."Year" = cf."Year"
-            ORDER BY fr."Year" ASC;
+                SELECT 
+                    fr."Year", 
+                    inc.revenue, inc.cost_of_goods_sold, inc.gross_profit, 
+                    inc.total_expenses, inc.earnings_before_tax, inc.taxes, inc.net_profit,
+                    bal.cash, bal.debt, bal.equity_capital, 
+                    bal.retained_earnings, bal.total_shareholders_equity,
+                    cf.net_earnings, cf.cash_from_operations, 
+                    cf.investment_in_property_and_equipment, cf.cash_from_investing, 
+                    cf.net_cash_change, cf.opening_cash_balance, cf.closing_cash_balance
+                FROM financial_records fr
+                LEFT JOIN incomeStatement inc ON fr."Year" = inc."Year"
+                LEFT JOIN balanceSheet bal ON fr."Year" = bal."Year"
+                LEFT JOIN cashFlowStatement cf ON fr."Year" = cf."Year"
+                ORDER BY fr."Year" ASC;
         """)
 
         rows = cur.fetchall()
