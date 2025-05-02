@@ -3,7 +3,7 @@ from flask_cors import CORS
 import psycopg2
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://whizz75.github.io"])
 
 try:
     conn = psycopg2.connect(
@@ -16,6 +16,32 @@ try:
     )
 except Exception as e:
     print("Database connection failed:", e)
+
+@app.route('/purchase/purchase', methods=['POST', 'OPTIONS'])
+def purchase():
+    if request.method == 'OPTIONS':
+        # Handle preflight request (needed for CORS)
+        return '', 200  # Respond with 200 OK to indicate the server accepts the request
+
+    if request.method == 'POST':
+        # Your logic to handle the purchase request
+        data = request.get_json()
+        customer_name = data.get('customer_name')
+        payment_method = data.get('payment_method')
+        employee_id = data.get('employee_id')
+        items = data.get('items')
+
+        # Your processing logic (e.g., save to database, etc.)
+        # For now, we simply return the received data for confirmation.
+        response_data = {
+            "message": "Purchase processed successfully",
+            "customer_name": customer_name,
+            "payment_method": payment_method,
+            "employee_id": employee_id,
+            "items": items
+        }
+
+        return jsonify(response_data), 200  # Respond with a success message
 
 @app.route('/sales', methods=['GET'])
 def get_sales():
