@@ -23,13 +23,12 @@ def purchase():
         # Handle preflight request (needed for CORS)
         return '', 200  # Respond with 200 OK to indicate the server accepts the request
 
-    if request.method == 'POST':
-        # Your logic to handle the purchase request
-        data = request.get_json()
-        customer_name = data.get('customer_name')
-        payment_method = data.get('payment_method')
-        employee_id = data.get('employee_id')
-        items = data.get('items')
+    if isinstance(data, list):
+        data = data[0]
+
+    customer_name = data.get('customer_name')
+    customer_email = data.get('customer_email')
+    cart_items = data.get('cart')
 
         # Your processing logic (e.g., save to database, etc.)
         # For now, we simply return the received data for confirmation.
@@ -251,6 +250,13 @@ def get_records_by_year():
         conn.rollback()
         print("Error in /records/by-year:", e)
         return jsonify({"error": str(e)}), 500
+
+@app.route('/purchase/sales', methods=['GET', 'OPTIONS'])
+def get_sales():
+    if request.method == 'OPTIONS':
+        return '', 200
+    # Return sales data
+    return jsonify({"message": "Sales data route is working!"})
 
 if __name__ == '__main__':
     app.run(debug=True)
