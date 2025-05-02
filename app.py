@@ -32,7 +32,7 @@ def purchase():
 
         # Your processing logic (e.g., save to database, etc.)
         # For now, we simply return the received data for confirmation.
-        response_data = {
+    response_data = {
             "message": "Purchase processed successfully",
             "customer_name": customer_name,
             "payment_method": payment_method,
