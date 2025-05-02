@@ -51,6 +51,35 @@ def get_sales():
         print("Error in /sales:", e)
         return jsonify({"error": str(e)}), 500
         
+
+@app.route('/inventory')
+def get_data():
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM inventory;")
+        rows = cur.fetchall()
+        cur.close()
+
+        print("Fetched inventory:", rows)
+
+        result = []
+        for r in rows:
+            try:
+                result.append({
+                    "inventoryid": r[0],
+                    "brand": r[1],
+                    "quantity": r[2]
+                })
+            except IndexError as err:
+                print("Tuple index error:", err)
+                continue
+
+        return jsonify(result)
+
+    except Exception as e:
+        print("Error in /inventory:", e)
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/products')
 def get_data():
     try:
