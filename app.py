@@ -17,7 +17,7 @@ try:
 except Exception as e:
     print("Database connection failed:", e)
 
-@app.route('/sales')
+@app.route('/sales', methods=['GET'])
 def get_sales():
     try:
         cur = conn.cursor()
@@ -43,78 +43,139 @@ def get_sales():
                 "customername": row[1],
                 "employee": row[2],
                 "product": row[3],
-                "sales_date": row[4].strftime("%Y-%m-%d")  # format date nicely
+                "sales_date": row[4].strftime("%Y-%m-%d")
             })
 
         return jsonify(sales_data)
     except Exception as e:
         print("Error in /sales:", e)
         return jsonify({"error": str(e)}), 500
-        
+
+@app.route('/sales', methods=['POST'])
+def insert_sale():
+    data = request.get_json()
+    customer_id = data.get('customerid')
+    employee_id = data.get('employeeid')
+    product_id = data.get('productid')
+    sales_date = data.get('sales_date')
+
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO sales (customerid, employeeid, productid, sales_date)
+            VALUES (%s, %s, %s, %s);
+        """, (customer_id, employee_id, product_id, sales_date))
+        conn.commit()
+        cur.close()
+        return jsonify({"message": "Sale recorded successfully"}), 201
+    except Exception as e:
+        conn.rollback()
+        print("Error inserting sale:", e)
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/purchase', methods=['POST'])
+def purchase_product():
+    data = request.get_json()
+    product_id = data.get('productid')
+    quantity_purchased = data.get('quantity')
+
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT quantity FROM product WHERE productid = %s;", (product_id,))
+        row = cur.fetchone()
+
+        if row is None:
+            return jsonify({"error": "Product not found"}), 404
+
+        current_quantity = row[0]
+
+        if current_quantity < quantity_purchased:
+            return jsonify({"error": "Insufficient quantity in stock"}), 400
+
+        cur.execute(
+            "UPDATE product SET quantity = quantity - %s WHERE productid = %s;",
+            (quantity_purchased, product_id)
+        )
+        conn.commit()
+        cur.close()
+        return jsonify({"message": "Purchase successful and quantity updated"}), 200
+    except Exception as e:
+        conn.rollback()
+        print("Error in /purchase:", e)
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/product/<int:product_id>', methods=['PUT'])
+def update_product(product_id):
+    data = request.get_json()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE product
+            SET productname = %s, brandname = %s, sellingprice = %s, quantity = %s
+            WHERE productid = %s;
+        """, (
+            data['productname'],
+            data['brandname'],
+            data['sellingprice'],
+            data['quantity'],
+            product_id
+        ))
+        conn.commit()
+        cur.close()
+        return jsonify({"message": "Product updated successfully"}), 200
+    except Exception as e:
+        conn.rollback()
+        print("Error updating product:", e)
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/inventory')
-def get_data():
+def get_inventory():
     try:
         cur = conn.cursor()
         cur.execute("SELECT * FROM inventory;")
         rows = cur.fetchall()
         cur.close()
 
-        print("Fetched inventory:", rows)
-
         result = []
         for r in rows:
-            try:
-                result.append({
-                    "inventoryid": r[0],
-                    "brand": r[1],
-                    "quantity": r[2]
-                })
-            except IndexError as err:
-                print("Tuple index error:", err)
-                continue
+            result.append({
+                "inventoryid": r[0],
+                "brand": r[1],
+                "quantity": r[2]
+            })
 
         return jsonify(result)
-
     except Exception as e:
         print("Error in /inventory:", e)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/products')
-def get_data():
+def get_products():
     try:
         cur = conn.cursor()
         cur.execute("SELECT * FROM product;")
         rows = cur.fetchall()
         cur.close()
 
-        print("Fetched products:", rows)
-
         result = []
         for r in rows:
-            try:
-                result.append({
-                    "productid": r[0],
-                    "productname": r[1],
-                    "brandname": r[2],
-                    "sellingprice": float(r[3]),
-                    "quantity": r[4]
-                })
-            except IndexError as err:
-                print("Tuple index error:", err)
-                continue
+            result.append({
+                "productid": r[0],
+                "productname": r[1],
+                "brandname": r[2],
+                "sellingprice": float(r[3]),
+                "quantity": r[4]
+            })
 
         return jsonify(result)
-
     except Exception as e:
-        print("Error in /api/data:", e)
+        print("Error in /products:", e)
         return jsonify({"error": str(e)}), 500
-        
+
 @app.route('/records/by-year')
 def get_records_by_year():
     try:
         cur = conn.cursor()
-
         cur.execute("""
                 SELECT 
                     fr."Year", 
@@ -131,11 +192,9 @@ def get_records_by_year():
                 LEFT JOIN cashFlowStatement cf ON fr."Year" = cf."Year"
                 ORDER BY fr."Year" ASC;
         """)
-
         rows = cur.fetchall()
         cur.close()
 
-        # Return a flat list instead of nested
         records_list = []
         for row in rows:
             records_list.append({
@@ -162,12 +221,10 @@ def get_records_by_year():
             })
 
         return jsonify(records_list)
-
     except Exception as e:
         conn.rollback()
         print("Error in /records/by-year:", e)
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True)
