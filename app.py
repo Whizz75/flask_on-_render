@@ -7,12 +7,11 @@ CORS(app, resources={r"/sales": {"origins": "https://whizz75.github.io"}})
 
 # Establish the database connection
 conn = psycopg2.connect(
-    dbname="semifinal",
-    user="semifinal_user",
-    password="ykBY3gMnOMTVkE67i3c2Mqpb9hE6WFUQ",
-    host="dpg-d0amb0pr0fns73cma300-a",
+    dbname="Motz_Auto_and_Tyres",
+    user="postgres",
+    password="qwerty",
+    host="localhost",
     port="5432",
-    sslmode="require"
 )
 
 # **1. Financial Data Retrieval & Update**
