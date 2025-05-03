@@ -200,18 +200,18 @@ def insert_sale():
 def get_products():
     try:
         cur = conn.cursor()
-        cur.execute("SELECT productid, name, description, price, quantity FROM product;")
+        cur.execute("SELECT * FROM product;")
         rows = cur.fetchall()
         cur.close()
 
         products_list = []
         for row in rows:
             products_list.append({
-                "ProductID": row[0],
-                "Name": row[1],
-                "Description": row[2],
-                "Price": row[3],
-                "Quantity": row[4]
+                "productid": row[0],
+                "productname": row[1],
+                "brandname": row[2],
+                "sellingprice": row[3],
+                "quantity": row[4]
             })
 
         return jsonify(products_list)
