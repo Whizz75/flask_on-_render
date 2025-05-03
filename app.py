@@ -3,9 +3,8 @@ from flask_cors import CORS
 import psycopg2
 
 app = Flask(__name__)
-CORS(app, resources={r"/sales": {"origins": "https://whizz75.github.io"}})
+CORS(app)
 
-# Establish the database connection
 conn = psycopg2.connect(
     dbname="semifinal",
     user="semifinal_user",
@@ -15,10 +14,8 @@ conn = psycopg2.connect(
     sslmode="require"
 )
 
-# **1. Financial Data Retrieval & Update**
-@app.route('/records/by-year', methods=['GET', 'POST'])
+@app.route('/records/by-year')
 def financial_records():
-    if request.method == 'GET':
         try:
             cur = conn.cursor()
             cur.execute("""SELECT 
@@ -67,90 +64,6 @@ def financial_records():
             print("Error in /records/by-year:", e)
             return jsonify({"error": str(e)}), 500
 
-    elif request.method == 'POST':
-        # Update the financial data
-        data = request.get_json()
-        year = data.get('Year')
-        revenue = data.get('Revenue')
-        cost_of_goods_sold = data.get('CostOfGoodsSold')
-        gross_profit = data.get('GrossProfit')
-        total_expenses = data.get('TotalExpenses')
-        earnings_before_tax = data.get('EarningsBeforeTax')
-        taxes = data.get('Taxes')
-        net_profit = data.get('NetProfit')
-        cash = data.get('Cash')
-        debt = data.get('Debt')
-        equity_capital = data.get('EquityCapital')
-        retained_earnings = data.get('RetainedEarnings')
-        total_shareholders_equity = data.get('TotalShareholdersEquity')
-        net_earnings = data.get('NetEarnings')
-        cash_from_operations = data.get('CashFromOperations')
-        investment_in_property_and_equipment = data.get('InvestmentInPropertyAndEquipment')
-        cash_from_investing = data.get('CashFromInvesting')
-        net_cash_change = data.get('NetCashChange')
-        opening_cash_balance = data.get('OpeningCashBalance')
-        closing_cash_balance = data.get('ClosingCashBalance')
-
-        try:
-            cur = conn.cursor()
-            cur.execute("""
-                UPDATE financial_records SET
-                    revenue = %s, cost_of_goods_sold = %s, gross_profit = %s, total_expenses = %s, 
-                    earnings_before_tax = %s, taxes = %s, net_profit = %s,
-                    cash = %s, debt = %s, equity_capital = %s, retained_earnings = %s,
-                    total_shareholders_equity = %s, net_earnings = %s, cash_from_operations = %s,
-                    investment_in_property_and_equipment = %s, cash_from_investing = %s, 
-                    net_cash_change = %s, opening_cash_balance = %s, closing_cash_balance = %s
-                WHERE "Year" = %s
-            """, (revenue, cost_of_goods_sold, gross_profit, total_expenses, earnings_before_tax,
-                  taxes, net_profit, cash, debt, equity_capital, retained_earnings, 
-                  total_shareholders_equity, net_earnings, cash_from_operations, 
-                  investment_in_property_and_equipment, cash_from_investing, net_cash_change,
-                  opening_cash_balance, closing_cash_balance, year))
-            conn.commit()
-            cur.close()
-            return jsonify({"message": "Financial record updated successfully"}), 200
-        except Exception as e:
-            conn.rollback()
-            print("Error updating financial record:", e)
-            return jsonify({"error": str(e)}), 500
-
-
-# **2. Retrieve and Update Products Data (Real-time Updates on Purchase)**
-@app.route('/purchase', methods=['POST'])
-def purchase_product():
-    data = request.get_json()
-    product_id = data.get('productid')
-    quantity_purchased = data.get('quantity')
-
-    try:
-        cur = conn.cursor()
-        cur.execute("SELECT quantity FROM product WHERE productid = %s;", (product_id,))
-        row = cur.fetchone()
-
-        if row is None:
-            return jsonify({"error": "Product not found"}), 404
-
-        current_quantity = row[0]
-
-        if current_quantity < quantity_purchased:
-            return jsonify({"error": "Insufficient quantity in stock"}), 400
-
-        # Update product quantity
-        cur.execute(
-            "UPDATE product SET quantity = quantity - %s WHERE productid = %s;",
-            (quantity_purchased, product_id)
-        )
-        conn.commit()
-        cur.close()
-        return jsonify({"message": "Purchase successful and quantity updated"}), 200
-    except Exception as e:
-        conn.rollback()
-        print("Error in /purchase:", e)
-        return jsonify({"error": str(e)}), 500
-
-
-# **3. Retrieve Inventory Data**
 @app.route('/inventory')
 def get_inventory():
     try:
@@ -172,31 +85,7 @@ def get_inventory():
         print("Error in /inventory:", e)
         return jsonify({"error": str(e)}), 500
 
-
-# **4. Sales Data Retrieval & Insertion from Receipt Page**
-@app.route('/sales', methods=['POST'])
-def insert_sale():
-    data = request.get_json()
-    customer_id = data.get('customerid')
-    employee_id = data.get('employeeid')
-    product_id = data.get('productid')
-    sales_date = data.get('sales_date')
-
-    try:
-        cur = conn.cursor()
-        cur.execute("""INSERT INTO sales (customerid, employeeid, productid, sales_date)
-                       VALUES (%s, %s, %s, %s);""", 
-                       (customer_id, employee_id, product_id, sales_date))
-        conn.commit()
-        cur.close()
-        return jsonify({"message": "Sale recorded successfully"}), 201
-    except Exception as e:
-        conn.rollback()
-        print("Error inserting sale:", e)
-        return jsonify({"error": str(e)}), 500
-
-# **Retrieve Product Data**
-@app.route('/products', methods=['GET'])
+@app.route('/products')
 def get_products():
     try:
         cur = conn.cursor()
@@ -218,7 +107,8 @@ def get_products():
     except Exception as e:
         print("Error in /products:", e)
         return jsonify({"error": str(e)}), 500
-@app.route('/sales', methods=['GET'])
+        
+@app.route('/sales')
 def get_sales():
     try:
         cur = conn.cursor()
@@ -253,6 +143,5 @@ def get_sales():
         print("Error retrieving sales data:", e)
         return jsonify({"error": str(e)}), 500
 
-# Run the Flask app
 if __name__ == "__main__":
     app.run(debug=True)
