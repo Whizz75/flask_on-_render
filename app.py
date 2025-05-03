@@ -218,6 +218,40 @@ def get_products():
     except Exception as e:
         print("Error in /products:", e)
         return jsonify({"error": str(e)}), 500
+@app.route('/sales', methods=['GET'])
+def get_sales():
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT 
+                s.sale_id, 
+                c.name AS customername, 
+                e.name AS employeename, 
+                p.name AS productname, 
+                s.sale_time
+            FROM sales s
+            JOIN customer c ON s.customerid = c.customerid
+            JOIN employee e ON s.employeeid = e.employeeid
+            JOIN product p ON s.productid = p.productid
+            ORDER BY s.sale_time DESC;
+        """)
+        rows = cur.fetchall()
+        cur.close()
+
+        sales_list = []
+        for row in rows:
+            sales_list.append({
+                "salesid": row[0],
+                "customername": row[1],
+                "employee": row[2],
+                "product": row[3],
+                "sales_date": row[4].strftime("%Y-%m-%d %H:%M:%S")
+            })
+
+        return jsonify(sales_list)
+    except Exception as e:
+        print("Error retrieving sales data:", e)
+        return jsonify({"error": str(e)}), 500
 
 # Run the Flask app
 if __name__ == "__main__":
