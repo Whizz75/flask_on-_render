@@ -5,11 +5,11 @@ app = Flask(__name__)
 
 # Establish the database connection
 conn = psycopg2.connect(
-    dbname="your_dbname",
-    user="your_dbuser",
-    password="your_dbpassword",
-    host="your_dbhost",
-    port="your_dbport",
+    dbname="semifinal",
+    user="semifinal_user",
+    password="ykBY3gMnOMTVkE67i3c2Mqpb9hE6WFUQ",
+    host="dpg-d0amb0pr0fns73cma300-a",
+    port="5432",
     sslmode="require"
 )
 
