@@ -245,7 +245,7 @@ def get_sales():
                 "customername": row[1],
                 "employee": row[2],
                 "product": row[3],
-                "sales_date": row[4].strftime("%Y-%m-%d %H:%M:%S")
+                "sales_date": row[4].strftime("%Y-%m-%d")
             })
 
         return jsonify(sales_list)
