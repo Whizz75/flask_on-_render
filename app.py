@@ -225,10 +225,10 @@ def get_sales():
         cur.execute("""
             SELECT 
                 s.salesid, 
-                c.name AS customername, 
-                e.name AS employeename, 
-                p.name AS productname, 
-                s.sale_time
+                CONCAT(c.customerfirstname, ' ', c.customerlastname) AS customername, 
+                CONCAT(e.employeefirstname, ' ', e.employeelastname) AS employee, 
+                CONCAT(p.productname, ', ', p.brandname) AS product,
+                s.sales_date
             FROM sales s
             JOIN customer c ON s.customerid = c.customerid
             JOIN employee e ON s.employeeid = e.employeeid
