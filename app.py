@@ -3,7 +3,7 @@ from flask_cors import CORS
 import psycopg2
 
 app = Flask(__name__)
-CORS(app,  origins=["https://whizz75.github.io"])
+CORS(app, resources={r"/sales": {"origins": "https://whizz75.github.io"}})
 
 # Establish the database connection
 conn = psycopg2.connect(
