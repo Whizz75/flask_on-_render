@@ -224,7 +224,7 @@ def get_sales():
         cur = conn.cursor()
         cur.execute("""
             SELECT 
-                s.sale_id, 
+                s.salesid, 
                 c.name AS customername, 
                 e.name AS employeename, 
                 p.name AS productname, 
@@ -233,7 +233,7 @@ def get_sales():
             JOIN customer c ON s.customerid = c.customerid
             JOIN employee e ON s.employeeid = e.employeeid
             JOIN product p ON s.productid = p.productid
-            ORDER BY s.sale_time DESC;
+            ORDER BY s.sales_date DESC;
         """)
         rows = cur.fetchall()
         cur.close()
