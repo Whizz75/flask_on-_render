@@ -13,7 +13,7 @@ conn = psycopg2.connect(
     port="5432",
     sslmode="require"
 )
-
+#Get the Financial Records by their year
 @app.route('/records/by-year')
 def financial_records():
         try:
@@ -34,9 +34,9 @@ def financial_records():
                             ORDER BY fr."Year" ASC;""")
             rows = cur.fetchall()
             cur.close()
-
+            #A list to store Financial Data
             records_list = []
-            for row in rows:
+            for row in rows: #Iterate through every row fetched
                 records_list.append({
                     "Year": row[0],
                     "Revenue": row[1],
@@ -60,10 +60,11 @@ def financial_records():
                     "ClosingCashBalance": row[19]
                 })
             return jsonify(records_list)
-        except Exception as e:
+        except Exception as e: #Raise an Error if it occurs
             print("Error in /records/by-year:", e)
             return jsonify({"error": str(e)}), 500
 
+#Return data from the Inventory table
 @app.route('/inventory')
 def get_inventory():
     try:
@@ -85,6 +86,7 @@ def get_inventory():
         print("Error in /inventory:", e)
         return jsonify({"error": str(e)}), 500
 
+#Return data from the Products table
 @app.route('/products')
 def get_products():
     try:
@@ -107,7 +109,8 @@ def get_products():
     except Exception as e:
         print("Error in /products:", e)
         return jsonify({"error": str(e)}), 500
-        
+
+#Return data from the Sales table with aliases
 @app.route('/sales')
 def get_sales():
     try:
@@ -143,5 +146,6 @@ def get_sales():
         print("Error retrieving sales data:", e)
         return jsonify({"error": str(e)}), 500
 
+#Run the app
 if __name__ == "__main__":
     app.run(debug=True)
